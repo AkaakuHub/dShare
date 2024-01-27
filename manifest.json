@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "dShare",
-    "version": "2.0",
+    "version": "2.1",
     "description": "PC版dアニメストアからスマホ版と同じような共有ツイートをできるようにします。",
     "author": "Akaaku",
     "action": {
