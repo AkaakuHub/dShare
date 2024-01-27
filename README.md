@@ -1,6 +1,8 @@
 # dShare
 
 PC版dアニメストアにツイートボタンを追加します。<br>
-ブランチにソースコードとxpiあります<br>
+ブランチにソースコードとxpiがあります<br>
 
-chrome版はセキュリティ上やめました
+<img width="50%" alt="dShare_img" src="https://github.com/AkaakuHub/AkaakuHub/blob/main/thumbnail/dShare1.png">
+
+<img width="50%" alt="dShare_img" src="https://github.com/AkaakuHub/AkaakuHub/blob/main/thumbnail/dShare2.png">
