@@ -6,3 +6,5 @@ PC版dアニメストアにツイートボタンを追加します。<br>
 <img width="50%" alt="dShare_img" src="https://github.com/AkaakuHub/AkaakuHub/blob/main/thumbnail/dShare1.png">
 
 <img width="50%" alt="dShare_img" src="https://github.com/AkaakuHub/AkaakuHub/blob/main/thumbnail/dShare2.png">
+
+https://chromewebstore.google.com/detail/dshare/gddckcmgggemdlbioklkjflbcobpjjdk?hl=ja
