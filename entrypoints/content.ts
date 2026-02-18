@@ -50,7 +50,7 @@ function buildButtonPart(targetElement: Element): void {
 
     let tweetText = `${title} ${episode}を視聴しました！#dアニメストア ${baseUrl}`;
     tweetText = encodeURIComponent(tweetText);
-    window.open(`https://twitter.com/intent/tweet?text=${tweetText}`, "_blank");
+    window.open(`https://x.com/intent/post?text=${tweetText}`, "_blank");
   });
 
   targetElement.appendChild(div);

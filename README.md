@@ -1,6 +1,6 @@
 # dShare
 
-PC版dアニメストアにツイートボタンを追加する Chrome 拡張です。
+PC版dアニメストアにツイートボタンを追加する Chrome / Firefox 拡張です。
 
 ## Development (WXT)
 ```bash
