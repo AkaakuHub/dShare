@@ -1,8 +1,22 @@
 import "../src/styles/content.css";
 
-const twitterSvg = `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 500 500" class="SVGclassname">
-<path fill="#ffffff" d="M221.95 51.29c.15 2.17.15 4.34.15 6.53 0 66.73-50.8 143.69-143.69 143.69v-.04c-27.44.04-54.31-7.82-77.41-22.64 3.99.48 8 .72 12.02.73 22.74.02 44.83-7.61 62.72-21.66-21.61-.41-40.56-14.5-47.18-35.07 7.57 1.46 15.37 1.16 22.8-.87-23.56-4.76-40.51-25.46-40.51-49.5v-.64c7.02 3.91 14.88 6.08 22.92 6.32C11.58 63.31 4.74 33.79 18.14 10.71c25.64 31.55 63.47 50.73 104.08 52.76-4.07-17.54 1.49-35.92 14.61-48.25 20.34-19.12 52.33-18.14 71.45 2.19 11.31-2.23 22.15-6.38 32.07-12.26-3.77 11.69-11.66 21.62-22.2 27.93 10.01-1.18 19.79-3.86 29-7.95-6.78 10.16-15.32 19.01-25.2 26.16z"/>
+const twitterSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+<path fill="currentColor" d="M18.901 1.153h3.68l-8.04 9.19L24 22.847h-7.406l-5.8-7.584-6.64 7.584H.47l8.6-9.83L0 1.154h7.594l5.243 6.932zM17.61 20.644h2.039L6.486 3.24H4.298z"/>
 </svg>`;
+const clipboardSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+<path fill="currentColor" d="M16 2h-1.18A3 3 0 0 0 12 0a3 3 0 0 0-2.82 2H8a2 2 0 0 0-2 2v1H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V4a2 2 0 0 0-2-2m-4-1a1 1 0 0 1 1 1h-2a1 1 0 0 1 1-1m4 4H8V4h8zM5 7h14v14H5z"/>
+</svg>`;
+
+type ShareContext = "part" | "work";
+type ShareAction = "tweet" | "copy";
+
+const selectors = {
+  partTarget: "#modalInformation3",
+  workTarget: ".actionArea",
+  partTitle: ".headerText",
+  partEpisode: ".episodeTitle span",
+  workTitle: ".titleWrap h1"
+} as const;
 
 function waitForElement(selector: string, callback: () => void, timeout = 5000): void {
   const interval = 500;
@@ -27,99 +41,145 @@ function waitForElement(selector: string, callback: () => void, timeout = 5000):
   check();
 }
 
-function isAlreadyExist(selector: string): boolean {
-  return document.querySelector(selector) !== null;
+function getPageContext(): ShareContext | null {
+  const url = new URL(window.location.href);
+  const workId = url.searchParams.get("workId");
+  const partId = url.searchParams.get("partId");
+
+  if (url.hostname !== "animestore.docomo.ne.jp" || url.pathname !== "/animestore/ci_pc") {
+    return null;
+  }
+
+  if (!workId || !/^\d{5}$/.test(workId)) {
+    return null;
+  }
+
+  if (partId && /^\d{8}$/.test(partId)) {
+    return "part";
+  }
+
+  return "work";
 }
 
-function buildButtonPart(targetElement: Element): void {
-  const div = document.createElement("div");
-  div.innerHTML = twitterSvg.replace("SVGclassname", "twtSVG_part");
-  div.className = "twtButton_part";
-  div.title = "ツイートする";
-  div.addEventListener("click", () => {
-    let baseUrl = window.location.href;
-    baseUrl = baseUrl.replace(/workId=\d{5}&/, "").replace("ci_pc", "cd") + "&ref=twtr";
-    baseUrl = baseUrl.trim();
+function buildShareUrl(context: ShareContext): string {
+  const url = new URL(window.location.href);
 
-    const title = document.querySelector(".headerText")?.textContent?.trim();
-    const episode = document.querySelector(".episodeTitle span")?.textContent?.trim();
+  if (context === "part") {
+    url.searchParams.delete("workId");
+    url.pathname = url.pathname.replace("/ci_pc", "/cd");
+  } else {
+    url.pathname = url.pathname.replace("/ci_pc", "/ci");
+  }
+
+  url.searchParams.set("ref", "twtr");
+  return url.toString();
+}
+
+function buildShareText(context: ShareContext): string | null {
+  if (context === "part") {
+    const title = document.querySelector(selectors.partTitle)?.textContent?.trim();
+    const episode = document.querySelector(selectors.partEpisode)?.textContent?.trim();
     if (!title || !episode) {
-      console.error("dShare: 話数ツイートに必要なテキストが見つかりませんでした");
+      console.error("dShare: 話数共有に必要なテキストが見つかりませんでした");
+      return null;
+    }
+
+    const shareUrl = buildShareUrl("part");
+    return `${title} ${episode}を視聴しました！#dアニメストア ${shareUrl}`;
+  }
+
+  const title = document.querySelector(selectors.workTitle)?.textContent?.trim();
+  if (!title) {
+    console.error("dShare: 作品共有に必要なタイトルが見つかりませんでした");
+    return null;
+  }
+
+  const shareUrl = buildShareUrl("work");
+  return `${title}配信中！#dアニメストア ${shareUrl}`;
+}
+
+function openTweetIntent(text: string): void {
+  const encoded = encodeURIComponent(text);
+  window.open(`https://x.com/intent/post?text=${encoded}`, "_blank");
+}
+
+async function copyToClipboard(text: string): Promise<void> {
+  try {
+    await navigator.clipboard.writeText(text);
+    console.log("dShare: クリップボードにコピーしました");
+  } catch (error) {
+    console.error("dShare: クリップボードへのコピーに失敗しました", error);
+  }
+}
+
+function createShareButton(context: ShareContext, action: ShareAction): HTMLButtonElement {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = `dshare-btn dshare-btn--${context} dshare-btn--${action}`;
+  button.title = action === "tweet" ? "ポストする" : "クリップボードにコピーする";
+  button.setAttribute("aria-label", button.title);
+
+  const icon = document.createElement("span");
+  icon.className = "dshare-btn__icon";
+  icon.innerHTML = action === "tweet" ? twitterSvg : clipboardSvg;
+  button.appendChild(icon);
+
+  button.addEventListener("click", async () => {
+    const shareText = buildShareText(context);
+    if (!shareText) {
       return;
     }
 
-    let tweetText = `${title} ${episode}を視聴しました！#dアニメストア ${baseUrl}`;
-    tweetText = encodeURIComponent(tweetText);
-    window.open(`https://x.com/intent/post?text=${tweetText}`, "_blank");
-  });
-
-  targetElement.appendChild(div);
-  console.log("dShare: 話数ツイートボタンの追加に成功しました");
-}
-
-function buildButtonWork(targetElement: Element): void {
-  const div = document.createElement("div");
-  div.innerHTML = twitterSvg.replace("SVGclassname", "twtSVG_work");
-  div.className = "twtButton_work";
-  div.title = "ツイートする";
-  div.addEventListener("click", () => {
-    let baseUrl = window.location.href;
-    baseUrl = baseUrl.replace("ci_pc", "ci") + "&ref=twtr";
-    baseUrl = baseUrl.trim();
-
-    const title = document.querySelector(".titleWrap h1")?.textContent?.trim();
-    if (!title) {
-      console.error("dShare: 作品ツイートに必要なタイトルが見つかりませんでした");
+    if (action === "tweet") {
+      openTweetIntent(shareText);
       return;
     }
 
-    let tweetText = `${title}配信中！#dアニメストア ${baseUrl}`;
-    tweetText = encodeURIComponent(tweetText);
-    window.open(`https://twitter.com/intent/tweet?text=${tweetText}`, "_blank");
+    await copyToClipboard(shareText);
   });
 
-  targetElement.appendChild(div);
-  console.log("dShare: 作品ツイートボタンの追加に成功しました");
+  return button;
 }
 
-function runMain(): void {
-  const urlPatternPart = /https:\/\/animestore.docomo.ne.jp\/animestore\/ci_pc\?workId=\d{5}&partId=\d{8}/;
-  const urlPatternWork = /https:\/\/animestore.docomo.ne.jp\/animestore\/ci_pc\?workId=\d{5}/;
+function createActionGroup(context: ShareContext): HTMLDivElement {
+  const group = document.createElement("div");
+  group.className = `dshare-actions dshare-actions--${context}`;
+  group.append(createShareButton(context, "tweet"), createShareButton(context, "copy"));
+  return group;
+}
 
-  if (urlPatternPart.test(window.location.href)) {
-    if (!isAlreadyExist(".twtButton_part")) {
-      waitForElement("#modalInformation3", () => {
-        const target = document.querySelector("#modalInformation3");
-        if (target) {
-          buildButtonPart(target);
-        } else {
-          console.error("dShare: #modalInformation3 が見つかりませんでした");
-        }
-      });
-    }
-
-    if (!isAlreadyExist(".twtButton_work")) {
-      waitForElement(".actionArea", () => {
-        const target = document.querySelector(".actionArea");
-        if (target) {
-          buildButtonWork(target);
-        } else {
-          console.error("dShare: .actionArea が見つかりませんでした");
-        }
-      });
-    }
+function ensureActionGroup(targetSelector: string, groupSelector: string, context: ShareContext): void {
+  if (document.querySelector(groupSelector)) {
     return;
   }
 
-  if (urlPatternWork.test(window.location.href) && !isAlreadyExist(".twtButton_work")) {
-    waitForElement(".actionArea", () => {
-      const target = document.querySelector(".actionArea");
-      if (target) {
-        buildButtonWork(target);
-      } else {
-        console.error("dShare: .actionArea が見つかりませんでした");
-      }
-    });
+  waitForElement(targetSelector, () => {
+    if (document.querySelector(groupSelector)) {
+      return;
+    }
+
+    const targetElement = document.querySelector(targetSelector);
+    if (!targetElement) {
+      console.error(`dShare: ${targetSelector} が見つかりませんでした`);
+      return;
+    }
+
+    targetElement.appendChild(createActionGroup(context));
+    console.log(`dShare: ${context} 用の共有ボタン追加に成功しました`);
+  });
+}
+
+function runMain(): void {
+  const pageContext = getPageContext();
+
+  if (pageContext === "part") {
+    ensureActionGroup(selectors.partTarget, ".dshare-actions--part", "part");
+    ensureActionGroup(selectors.workTarget, ".dshare-actions--work", "work");
+    return;
+  }
+
+  if (pageContext === "work") {
+    ensureActionGroup(selectors.workTarget, ".dshare-actions--work", "work");
     return;
   }
 

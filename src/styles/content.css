@@ -1,59 +1,81 @@
-.twtSVG_part {
-  position: relative;
-  left: 7%;
-  transform: scale(0.28);
-  bottom: 175%;
+.dshare-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: fit-content;
+  margin-top: 6px;
 }
 
-.twtSVG_work {
-  position: relative;
-  left: 14%;
-  transform: scale(0.45);
-  bottom: -45%;
-}
-
-.twtButton_part {
-  position: relative;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: rgb(29, 161, 242);
+.dshare-actions--part {
+  flex-direction: column;
+  align-items: stretch;
   width: 268px;
+  margin: 0 auto 20px;
+  position: relative;
+  top: -18px;
+}
+
+.dshare-actions--part .dshare-btn {
+  width: 268px;
+  flex: 0 0 50px;
   height: 50px;
-  cursor: pointer;
-  margin-bottom: 20px;
 }
 
-.twtButton_part:hover {
-  filter: brightness(120%);
-}
-
-.twtButton_work {
-  background-color: rgb(29, 161, 242);
-  width: 133px;
-  height: 44px;
+.dshare-btn {
+  appearance: none;
+  border: 0;
   cursor: pointer;
   display: flex;
-  position: relative;
-  padding: 0;
-  margin: 0;
-  justify-content: center;
   align-items: center;
-  float: none;
+  justify-content: center;
+  width: 135px;
+  flex: 0 0 135px;
+  height: 44px;
+  padding: 0;
+  color: #ffffff;
+  transition: filter 0.15s ease;
 }
 
-.twtButton_work:hover {
-  filter: brightness(120%);
+.dshare-btn--tweet {
+  background-color: #000;
+}
+
+.dshare-btn--copy {
+  background-color: #747a80;
+}
+
+.dshare-btn:hover {
+  filter: brightness(112%);
+}
+
+.dshare-btn__icon {
+  width: 24px;
+  height: 24px;
+}
+
+.dshare-btn--tweet .dshare-btn__icon {
+  width: 28px;
+  height: 28px;
+  color: #fff;
+}
+
+.dshare-btn__icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 @media screen and (max-width: 960px) {
-  .twtSVG_work {
-    width: 120px;
-    height: 120px;
-    left: 4%;
-    bottom: -40%;
+  .dshare-actions {
+    gap: 4px;
   }
 
-  .twtButton_work {
+  .dshare-actions--work {
+    width: 100%;
+  }
+
+  .dshare-actions--work .dshare-btn {
     width: 50%;
+    flex: 0 1 50%;
   }
 }
