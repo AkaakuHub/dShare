@@ -35,8 +35,9 @@ function buildButton_part(targetElement) {
         baseURL = baseURL.replace(/workId=\d{5}&/, "").replace("ci_pc", "cd") + "&ref=twtr";
         baseURL = baseURL.trim();
         // htmlのtitle
-        let title = document.querySelector("title").textContent;
-        title = title.split(" | ")[0].trim();
+        let title = document.querySelector(".headerText").textContent;
+        let wasuu = document.querySelector(".episodeTitle span").textContent;
+        title = (title + " " + wasuu).trim();
         let tweetText = `${title}を視聴しました！#dアニメストア ${baseURL}`;
         tweetText = encodeURIComponent(tweetText);
         window.open(`https://twitter.com/intent/tweet?text=${tweetText}`, "_blank");
