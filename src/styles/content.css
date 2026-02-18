@@ -90,7 +90,7 @@
 }
 
 @media screen and (max-width: 960px) {
-  .dshare-actions {
+  .dshare-actions:not(.dshare-actions--part) {
     gap: 4px;
   }
 
