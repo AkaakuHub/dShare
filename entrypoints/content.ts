@@ -103,13 +103,38 @@ function openTweetIntent(text: string): void {
   window.open(`https://x.com/intent/post?text=${encoded}`, "_blank");
 }
 
-async function copyToClipboard(text: string): Promise<void> {
+async function copyToClipboard(text: string): Promise<boolean> {
   try {
     await navigator.clipboard.writeText(text);
     console.log("dShare: クリップボードにコピーしました");
+    return true;
   } catch (error) {
     console.error("dShare: クリップボードへのコピーに失敗しました", error);
+    return false;
   }
+}
+
+function showCopyIndicator(button: HTMLButtonElement): void {
+  let indicator = button.querySelector<HTMLSpanElement>(".dshare-copy-indicator");
+  if (!indicator) {
+    indicator = document.createElement("span");
+    indicator.className = "dshare-copy-indicator";
+    indicator.textContent = "コピーしました！";
+    button.appendChild(indicator);
+  }
+
+  indicator.classList.add("is-visible");
+
+  const activeTimerId = button.dataset.copyIndicatorTimerId;
+  if (activeTimerId) {
+    window.clearTimeout(Number(activeTimerId));
+  }
+
+  const timeoutId = window.setTimeout(() => {
+    indicator.classList.remove("is-visible");
+    delete button.dataset.copyIndicatorTimerId;
+  }, 1200);
+  button.dataset.copyIndicatorTimerId = String(timeoutId);
 }
 
 function createShareButton(context: ShareContext, action: ShareAction): HTMLButtonElement {
@@ -135,7 +160,10 @@ function createShareButton(context: ShareContext, action: ShareAction): HTMLButt
       return;
     }
 
-    await copyToClipboard(shareText);
+    const isCopied = await copyToClipboard(shareText);
+    if (isCopied) {
+      showCopyIndicator(button);
+    }
   });
 
   return button;

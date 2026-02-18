@@ -26,6 +26,7 @@
   border: 0;
   cursor: pointer;
   display: flex;
+  position: relative;
   align-items: center;
   justify-content: center;
   width: 135px;
@@ -63,6 +64,29 @@
   width: 100%;
   height: 100%;
   display: block;
+}
+
+.dshare-copy-indicator {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 4px);
+  transform: translate(-50%, 4px);
+  background-color: #111;
+  color: #fff;
+  font-size: 12px;
+  line-height: 1;
+  padding: 6px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  border: 2px solid #fff;
+}
+
+.dshare-copy-indicator.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
 }
 
 @media screen and (max-width: 960px) {
