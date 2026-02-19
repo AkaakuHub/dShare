@@ -10,6 +10,7 @@
     "zip": "wxt zip"
   },
   "devDependencies": {
+    "@wxt-dev/auto-icons": "^1.1.0",
     "wxt": "0.20.17"
   }
 }

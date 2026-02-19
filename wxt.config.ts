@@ -1,11 +1,12 @@
 import { defineConfig } from "wxt";
 
 export default defineConfig({
-  extensionApi: "chrome",
   manifest: {
     name: "dShare",
     description: "PC版dアニメストアからスマホ版と同じような共有ツイートをできるようにします。",
-    author: "Akaaku",
+    author: {
+      email: "contact@akaaku.net",
+    },
     action: {
       default_icon: {
         "16": "images/icon16.png",
@@ -15,6 +16,6 @@ export default defineConfig({
         "128": "images/icon128.png"
       }
     }
-  }
+  },
+  modules: ['@wxt-dev/auto-icons'],
 });
-
