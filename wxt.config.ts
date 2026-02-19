@@ -7,15 +7,20 @@ export default defineConfig({
     author: {
       email: "contact@akaaku.net",
     },
-    action: {
-      default_icon: {
-        "16": "images/icon16.png",
-        "32": "images/icon32.png",
-        "48": "images/icon48.png",
-        "64": "images/icon64.png",
-        "128": "images/icon128.png"
-      }
-    }
   },
-  modules: ['@wxt-dev/auto-icons'],
+  modules: ["@wxt-dev/auto-icons"],
+  hooks: {
+    "build:manifestGenerated": (wxt, manifest) => {
+      if (wxt.config.browser !== "firefox") {
+        return;
+      }
+
+      const author = manifest.author;
+      if (!author) {
+        return;
+      }
+
+      Reflect.set(manifest, "author", author.email);
+    },
+  },
 });
